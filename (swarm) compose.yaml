@@ -8,19 +8,18 @@ services:
       - backend-redis
     volumes:
       - data-redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "redis-cli", "ping"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
     deploy:
       replicas: 1
+      placement:
+        max_replicas_per_node: 1
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
 
   postgres:
     image: postgres:alpine3.18
@@ -36,19 +35,18 @@ services:
       - backend-postgres
     volumes:
       - data-postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
     deploy:
       replicas: 1
+      placement:
+        max_replicas_per_node: 1
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
 
   vote:
     image: baptistegeorget/vote:1.0
@@ -59,19 +57,18 @@ services:
     networks:
       - frontend-vote
       - backend-redis
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8000"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://localhost:8000"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
     deploy:
       replicas: 2
+      placement:
+        max_replicas_per_node: 1
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
 
   result:
     image: baptistegeorget/result:1.0
@@ -82,19 +79,18 @@ services:
     networks:
       - frontend-result
       - backend-postgres
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:3000"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "curl", "--fail", "http://localhost:3000"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
     deploy:
       replicas: 2
+      placement:
+        max_replicas_per_node: 1
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
 
   worker:
     image: baptistegeorget/worker:1.0
@@ -103,19 +99,18 @@ services:
     networks:
       - backend-redis
       - backend-postgres
-    healthcheck:
-      test: ["CMD", "dotnet", "Worker.dll"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "dotnet", "Worker.dll"]
+    #   interval: 1m30s
+    #   timeout: 30s
+    #   retries: 5
+    #   start_period: 30s
     deploy:
       replicas: 2
+      placement:
+        max_replicas_per_node: 1
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
 
 networks:
   backend-redis:

@@ -1,0 +1,93 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:alpine3.18
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-redis
+    volumes:
+      - data-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  postgres:
+    image: postgres:alpine3.18
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    depends_on:
+      - vote
+    networks:
+      - backend-postgres
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  vote:
+    image: baptistegeorget/vote:1.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - frontend-vote
+      - backend-redis
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  result:
+    image: baptistegeorget/result:1.0
+    ports:
+      - "8888:8888"
+    depends_on:
+      - worker
+    networks:
+      - frontend-result
+      - backend-postgres
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3000"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    image: baptistegeorget/worker:1.0
+    depends_on:
+      - postgres
+    networks:
+      - backend-redis
+      - backend-postgres
+    healthcheck:
+      test: ["CMD", "dotnet", "Worker.dll"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+networks:
+  backend-redis:
+  backend-postgres:
+  frontend-vote:
+  frontend-result:
+
+volumes:
+  data-redis:
+  data-postgres:

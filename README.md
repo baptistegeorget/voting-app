@@ -61,7 +61,7 @@ vagrant up
 vagrant ssh manager1
 ```
 
-- Après on créer un cluster avec la commande suivante :
+- Ensuite exécuter la commande suivante pour initialiser docker swarm :
 
 ```bash
 docker swarm init --advertise-addr 192.168.99.100

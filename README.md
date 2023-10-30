@@ -1,4 +1,4 @@
-# Documentation et informations de déploiement du projet
+# Informations et déploiement du projet
 
 ## Informations
 
